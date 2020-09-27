@@ -1,0 +1,11 @@
+{
+  "name": "massive-magenta",
+  "version": "0.0.1",
+  "description": "Node.js based http server for TPH.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicolas H.",
+  "license": "MIT"
+}
