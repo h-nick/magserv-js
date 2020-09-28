@@ -4,8 +4,11 @@
   "description": "Node.js based http server for TPH.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx nodemon index.js"
   },
   "author": "Nicolas H.",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^2.0.4"
+  }
 }
