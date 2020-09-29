@@ -10,17 +10,12 @@ const clientString = colors.green('[CLIENT]');
 
 // Creating the server.
 const server = net.createServer((tcpSocket) => {
-  console.log(`${clientString} Client connected.`);
+  console.log(`${clientString} (${tcpSocket.remoteAddress}:${tcpSocket.remotePort}) connected.`);
 
   tcpSocket.write('Sucessful connection.\n');
 
-  const cTimer = setInterval(() => {
-    tcpSocket.write('Are you still there?\n');
-  }, 5000);
-
   tcpSocket.on('end', () => {
-    console.log(`${clientString} Client disconnected.`);
-    clearInterval(cTimer);
+    console.log(`${clientString} (${tcpSocket.remoteAddress}:${tcpSocket.remotePort}) disconnected.`);
   });
 });
 
