@@ -3,11 +3,15 @@ const colors = require('colors/safe');
 const TCPSocket = require('./tcp_socket');
 
 module.exports = class HttpServer {
-  #host; #port;
+  #host;
+
+  #port;
+
   #responses = new Map();
+
   #str = {
     server: colors.yellow('[SERVER]'),
-    client: colors.brightRed('[CLIENT]')
+    client: colors.brightRed('[CLIENT]'),
   };
 
   constructor(host = '127.0.0.1', port = 8124) {
@@ -26,13 +30,9 @@ module.exports = class HttpServer {
     console.log(`${this.#str.client} (${socket.addr}:${socket.port}) disconnected.`);
   }
 
-  #cmdGet = (word) => {
-    return this.#responses.get(word);
-  }
+  #cmdGet = (word) => this.#responses.get(word)
 
-  #cmdSet = (word, desc) => {
-    return this.#responses.set(word, desc);
-  }
+  #cmdSet = (word, desc) => this.#responses.set(word, desc)
 
   #cmdClear = () => {
     this.#responses.clear();
@@ -55,7 +55,7 @@ module.exports = class HttpServer {
     }
 
     switch (stringMatch[0]) {
-      case 'GET':
+      case 'GET': {
         if (!stringMatch[1]) {
           socket.internal.write('ERROR Expected format is: GET <word>.\r\n');
         }
@@ -65,11 +65,12 @@ module.exports = class HttpServer {
         if (rVal) {
           socket.internal.write(`ANSWER ${rVal}\r\n`);
         } else {
-          socket.internal.write(`ERROR Could not find the specified word.\r\n`);
+          socket.internal.write('ERROR Could not find the specified word.\r\n');
         }
         break;
+      }
 
-      case 'SET':
+      case 'SET': {
         const extraParam = stringMatch.slice(2).join(' ');
 
         if (!stringMatch[1] || !extraParam) {
@@ -80,27 +81,30 @@ module.exports = class HttpServer {
         this.#cmdSet(stringMatch[1], extraParam);
         socket.internal.write(`ANSWER Word ${stringMatch[1]} has been set.\r\n`);
         break;
+      }
 
-      case 'CLEAR':
+      case 'CLEAR': {
         this.#cmdClear();
-        socket.internal.write(`ANSWER The dictionary has been cleared.\r\n`);
+        socket.internal.write('ANSWER The dictionary has been cleared.\r\n');
         break;
+      }
 
-      case 'ALL':
+      case 'ALL': {
         const words = this.#cmdAll();
 
         if (words) {
           socket.internal.write(`ANSWER Available words: ${words}.\r\n`);
         } else {
-          socket.internal.write(`ERROR There are no words saved.\r\n`);
+          socket.internal.write('ERROR There are no words saved.\r\n');
         }
         break;
+      }
 
       default:
-        socket.internal.write(`ERROR Command not found.\r\n`);
+        socket.internal.write('ERROR Command not found.\r\n');
     }
 
-    socket.internal.write('---------------\r\n')
+    socket.internal.write('---------------\r\n');
   }
 
   #tcpHandler = (client) => {
@@ -116,7 +120,7 @@ module.exports = class HttpServer {
 
   #listen = (server) => {
     server.listen(this.#port, this.#host, 1, () => {
-      console.log(`${this.#str.server} Connected. Listening on ${this.#host}:${this.#port}.`)
+      console.log(`${this.#str.server} Connected. Listening on ${this.#host}:${this.#port}.`);
     });
   }
 
@@ -127,4 +131,4 @@ module.exports = class HttpServer {
     this.#listen(server);
     return server;
   }
-}
+};
