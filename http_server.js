@@ -3,8 +3,7 @@ const colors = require('colors/safe');
 const TCPSocket = require('./tcp_socket');
 
 module.exports = class HttpServer {
-  #host;
-  #port;
+  #host; #port; #responses;
   #str = {
     server: colors.yellow('[SERVER]'),
     client: colors.brightRed('[CLIENT]')
@@ -16,24 +15,26 @@ module.exports = class HttpServer {
   }
 
   #endHandler = (socket) => {
-    console.log(
-      `${this.#str.client} (${socket.addr}:${socket.port}) disconnected.`
-    );
+    try {
+      socket.internal.write('Finished. Bye!');
+      socket.internal.destroy();
+    } catch (error) {
+      console.log(error);
+    }
+
+    console.log(`${this.#str.client} (${socket.addr}:${socket.port}) disconnected.`);
   }
 
   #dataHandler = (socket, data) => {
-    console.log(
-      `${this.#str.client} Data received from (${socket.addr}:${socket.port}).`
-    );
-
-    socket.internal.write(`You sent this: ${data.toString('utf-8')}`);
+    console.log(`${this.#str.client} (${socket.addr}:${socket.port}) sent data.`);
   }
 
   #tcpHandler = (client) => {
     const socket = new TCPSocket(client);
     console.log(`${this.#str.client} (${socket.addr}:${socket.port}) connected.`);
 
-    socket.internal.write('Sucessful connection.\n');
+    socket.internal.write('Sucessful connection.\r\n');
+    socket.internal.write('Available commands: GET, SET, CLEAR, ALL');
 
     socket.internal.on('end', () => this.#endHandler(socket));
     socket.internal.on('data', (data) => this.#dataHandler(socket, data));
@@ -48,7 +49,7 @@ module.exports = class HttpServer {
   init = (listener = this.#tcpHandler) => {
     console.log(colors.yellow(`Initializing TCP server on port ${this.#port}...`));
 
-    const server = net.createServer(listener);
+    const server = net.createServer({ allowHalfOpen: true }, listener);
     this.#listen(server);
     return server;
   }
