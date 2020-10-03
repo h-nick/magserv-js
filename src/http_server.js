@@ -21,6 +21,10 @@ module.exports = class HttpServer {
     this.#port = process.env.PORT || port;
   }
 
+  close = () => {
+    this.#server.close(() => console.log('All connections finished. Bye!'));
+  }
+
   #endHandler = (socket) => {
     try {
       socket.internal.write('Finished. Bye!\r\n');
