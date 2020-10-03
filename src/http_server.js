@@ -117,7 +117,7 @@ module.exports = class HttpServer {
     const socket = new TCPSocket(client);
     console.log(`${this.#str.client} (${socket.addr}:${socket.port}) connected.`);
 
-    socket.internal.write('Sucessful connection.\r\n');
+    socket.internal.write('Successful connection.\r\n');
     socket.internal.write('Available commands: GET, SET, CLEAR, ALL.\r\n');
 
     socket.internal.on('end', () => this.#endHandler(socket));
