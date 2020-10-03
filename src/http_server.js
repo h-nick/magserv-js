@@ -9,6 +9,8 @@ module.exports = class HttpServer {
 
   #responses = new Map();
 
+  #server;
+
   #str = {
     server: colors.yellow('[SERVER]'),
     client: colors.brightRed('[CLIENT]'),
@@ -118,8 +120,8 @@ module.exports = class HttpServer {
     socket.internal.on('data', (data) => this.#dataHandler(socket, data));
   }
 
-  #listen = (server) => {
-    server.listen(this.#port, this.#host, 1, () => {
+  #listen = () => {
+    this.#server.listen(this.#port, this.#host, 1, () => {
       console.log(`${this.#str.server} Connected. Listening on ${this.#host}:${this.#port}.`);
     });
   }
@@ -127,8 +129,8 @@ module.exports = class HttpServer {
   init = (listener = this.#tcpHandler) => {
     console.log(colors.yellow(`Initializing TCP server on port ${this.#port}...`));
 
-    const server = net.createServer({ allowHalfOpen: true }, listener);
-    this.#listen(server);
-    return server;
+    this.#server = net.createServer({ allowHalfOpen: true }, listener);
+    this.#listen();
+    return this.#server;
   }
 };
