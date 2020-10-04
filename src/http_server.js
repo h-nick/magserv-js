@@ -64,6 +64,7 @@ module.exports = class HttpServer {
       case 'GET': {
         if (!stringMatch[1]) {
           socket.internal.write('ERROR Expected format is: GET <word>.\r\n');
+          break;
         }
 
         const rVal = this.#cmdGet(stringMatch[1]);
