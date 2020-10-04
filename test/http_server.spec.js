@@ -1,40 +1,71 @@
 const net = require('net');
-const chai = require('chai');
 const { expect } = require('chai');
+const sinon = require('sinon');
 const HttpServer = require('../src/http_server');
 
-describe('Socket connectivity', () => {
-  let server;
-  let client;
+const clientConfig = {
+  host: '127.0.0.1',
+  port: 8124,
+  localAddress: '127.0.0.1',
+  family: 4,
+};
 
+console.log = () => { }; // Skipping console.logs.
+
+describe('Socket connectivity', () => {
   before(() => {
-    server = new HttpServer();
-    server.init();
+    this.currentTest = {};
+
+    this.currentTest.server = new HttpServer();
+    this.currentTest.server.init();
   });
 
   after(() => {
-    server.close();
+    this.currentTest.server.close();
   });
 
   beforeEach(() => {
-    client = new net.Socket();
-    client.connect({
-      host: '127.0.0.1',
-      port: 8124,
-      localAddress: '127.0.0.1',
-      localPort: Math.ceil(Math.random() * (55555 - 53000 + 1) + 53000),
-      family: 4,
-    });
+    this.currentTest.client = new net.Socket();
   });
 
-  it('should connect successfully to the server', () => {
-    client.on('data', (data) => {
-      const expMessage = data.toString('utf-8').split('\r\n')[0];
+  afterEach(() => {
+    this.currentTest.client.off('data', this.currentTest.handler);
+    this.currentTest.client.destroy();
+  });
 
-      chai.expect(expMessage).to.be.a('string');
-      chai.expect(expMessage).to.equal('Successful connection.');
-    });
+  it('Should connect successfully to the server', (done) => {
+    this.currentTest.handler = (data) => {
+      const expMsg = data.toString('utf-8').split('\r\n')[0];
+      expect(expMsg).to.be.a('string');
+      expect(expMsg).to.equal('Successful connection.');
 
-    client.end();
+      done();
+    };
+
+    this.currentTest.client.connect(clientConfig);
+    this.currentTest.client.on('data', this.currentTest.handler);
+  });
+
+  it('Should disconnect successfully', (done) => {
+    const buffer = [];
+
+    this.currentTest.handler = (data) => {
+      buffer.push(data.toString('utf-8'));
+
+      if (this.currentTest.handler.callCount > 1) {
+        const expMsg = buffer[buffer.length - 1].split('\r\n')[0];
+        expect(expMsg).to.be.a('string');
+        expect(expMsg).to.equal('Finished. Bye!');
+
+        done();
+      }
+    };
+
+    sinon.spy(this.currentTest, 'handler');
+
+    this.currentTest.client.connect(clientConfig);
+    this.currentTest.client.end();
+
+    this.currentTest.client.on('data', this.currentTest.handler);
   });
 });

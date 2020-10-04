@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "npx nodemon src/index.js",
-    "test": "npx mocha --watch"
+    "test": "npx nyc mocha"
   },
   "author": "Nicolas H.",
   "license": "MIT",
@@ -19,6 +19,8 @@
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",
-    "mocha": "^8.1.3"
+    "mocha": "^8.1.3",
+    "nyc": "^15.1.0",
+    "sinon": "^9.1.0"
   }
 }
