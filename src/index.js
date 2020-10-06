@@ -1,4 +1,4 @@
-const HttpServer = require('./http_server');
+const HTTPServer = require('./http_server');
 
-const server = new HttpServer();
+const server = new HTTPServer();
 server.init();

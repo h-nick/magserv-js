@@ -1,0 +1,15 @@
+{
+  "templates": {
+    "default": {
+      "outputSourceFiles": false
+    }
+  },
+  "opts": {
+    "template": "node_modules/minami",
+    "destination": "docs/",
+    "meta": [
+      "<meta name=\"author\" content=\"Nicolas H.\">"
+    ],
+    "readme": "./README.md"
+  }
+}

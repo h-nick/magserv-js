@@ -1,11 +1,12 @@
 {
   "name": "massive-magenta",
-  "version": "0.1.0-alpha.3",
-  "description": "Node.js based http server for TPH.",
+  "version": "0.1.0-alpha.4",
+  "description": "Node.js-based custom http server for TPH.",
   "main": "src/index.js",
   "scripts": {
     "start": "npx nodemon src/index.js",
-    "test": "npx nyc mocha"
+    "test": "npx nyc mocha",
+    "docs": "npx jsdoc --configure .jsdoc.json --verbose --private -r ./src"
   },
   "author": "Nicolas H.",
   "license": "MIT",
@@ -19,6 +20,8 @@
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",
+    "jsdoc": "^3.6.6",
+    "minami": "^1.2.3",
     "mocha": "^8.1.3",
     "nyc": "^15.1.0",
     "sinon": "^9.1.0"
