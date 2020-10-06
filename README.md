@@ -4,7 +4,7 @@
 
 This custom HTTP server (codenamed Massive-Magenta) is part of a DIY project at [TPH](https://theprogrammershangout.com/).
 
-**[Documentation](https://hniks.github.io/massive-magenta)**
+**[Documentation](https://hniks.github.io/massive-magenta/)**
 
 ## Changelog
 * 2020/10/06 - v0.1.0-alpha.4
