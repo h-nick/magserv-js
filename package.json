@@ -1,6 +1,6 @@
 {
   "name": "massive-magenta",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha.3",
   "description": "Node.js based http server for TPH.",
   "main": "src/index.js",
   "scripts": {
