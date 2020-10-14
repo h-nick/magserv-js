@@ -81,7 +81,26 @@ class HttpServer {
   /**
    * @private
    * @function
+   * @description Manually destroys the socket connection without triggering the
+   * end event handler.
+   * @param {Object} socket - The object representing the connected socket.
+   * @return {Void} N/A
+   */
+  #endConnection = (socket) => {
+    try {
+      socket.internal.destroy();
+      console.log(`${this.#str.server} (${socket.addr}:${socket.port}) connection closed.`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * @private
+   * @function
    * @description Handles the request sent from the client.
+   * A valid HTTP request must be sent for it to be handled, otherwise an ERROR message
+   * will be sent to the client.
    * @param {Object} socket - The object representing the connected socket.
    * It should be passed by the appropriate event listener.
    * @param {Buffer} data - The request received by the server.
