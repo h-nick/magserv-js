@@ -122,7 +122,13 @@ class HttpServer {
     /* eslint-disable-next-line no-restricted-syntax */
     for (const header of headersArray) {
       const [key, val] = header.split(': ');
-      headers[key] = val;
+
+      /*
+      * Regex makes sure header key doesn't have any number or symbol other than "-".
+      */
+      if (val && !/[^a-zA-Z-]/g.test(key)) {
+        headers[key] = Number(val) || val;
+      }
     }
 
     return headers;
