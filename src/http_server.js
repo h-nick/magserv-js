@@ -98,6 +98,39 @@ class HttpServer {
   /**
    * @private
    * @function
+   * @description Gets the entry line in an HTTP request.
+   * @param {String[]} stringData - The array of strings containing the HTTP request.
+   * It should be passed down by the appropriate method.
+   * @return {String[]} Returns an array of strings containing the HTTP request
+   * method, resource and version.
+   */
+  #getEntryLine = (stringData) => stringData[0].split(' ');
+
+  /**
+   * @private
+   * @function
+   * @description Gets the headers from the HTTP request.
+   * @param {String[]} stringData - The array of strings containing the HTTP request.
+   * It should be passed down by the appropriate method.
+   * @return {Object} Returns an object with all the headers.
+   * Non-valid headers are parsed out.
+   */
+  #getHeaders = (stringData) => {
+    const headersArray = stringData.slice(1, stringData.findIndex((e) => !e));
+    const headers = {};
+
+    /* eslint-disable-next-line no-restricted-syntax */
+    for (const header of headersArray) {
+      const [key, val] = header.split(': ');
+      headers[key] = val;
+    }
+
+    return headers;
+  }
+
+  /**
+   * @private
+   * @function
    * @description Handles the request sent from the client.
    * A valid HTTP request must be sent for it to be handled, otherwise an ERROR message
    * will be sent to the client.
@@ -109,14 +142,11 @@ class HttpServer {
   #dataHandler = (socket, data) => {
     try {
       const stringData = data.toString('utf-8').split('\r\n');
-      const requestString = stringData[0].split(' ');
-
-      const [method, resource, version] = requestString;
+      const [method, resource, version] = this.#getEntryLine(stringData);
+      const headers = this.#getHeaders(stringData);
 
       if (!method || !resource || !version) {
-        socket.internal.write(
-          'ERROR Method, Resource or Version missing from request.\r\n',
-        );
+        socket.internal.write('ERROR Method, Resource or Version missing from request.\r\n');
         return;
       }
 
