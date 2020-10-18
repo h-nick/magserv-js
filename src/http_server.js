@@ -2,7 +2,7 @@ const net = require('net');
 const colors = require('colors/safe');
 const fs = require('fs').promises;
 const path = require('path');
-const { resolve } = require('path');
+const mime = require('mime-types');
 const { TCPSocket } = require('./tcp_socket');
 
 /**
@@ -151,12 +151,12 @@ class HttpServer {
 
       const fileData = await fs.readFile(resolvedPath, { encoding: 'utf8' });
       const { size: fileSize } = await fs.stat(resolvedPath);
-      // const fileType = path.extname(resolvedPath);
+      const fileType = mime.contentType(path.extname(resolvedPath));
 
       return {
         fileData,
         fileSize,
-        // fileType,
+        fileType,
       };
     } catch {
       return null;
@@ -190,6 +190,7 @@ class HttpServer {
       headers: {
         Server: 'massive-magenta',
         'Content-Length': file.fileSize,
+        'Content-Type': file.fileType,
       },
       body: file.fileData,
     };
