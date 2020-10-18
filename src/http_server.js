@@ -236,23 +236,34 @@ class HttpServer {
       const [method, resource, version] = this.#getEntryLine(stringData);
       const headers = this.#getHeaders(stringData);
 
-      if (!method || !resource || !version) {
-        socket.internal.write('ERROR Method, Resource or Version missing from request.\r\n');
-        return;
+      if (!method || !resource || !version || !Object.keys(headers).length) {
+        return this.#writeResponse(socket, {
+          response: 'Bad Request',
+          responseCode: 400,
+          headers: {
+            Server: 'massive-magenta',
+          },
+        });
       }
 
       console.log(`${this.#str.client} (${socket.addr}:${socket.port}) sent data.`);
 
       switch (method) {
         case 'GET': {
-          this.#handleGetMethod(resource).then((res) => {
+          return this.#handleGetMethod(resource).then((res) => {
             console.log(`${this.#str.server} (${socket.addr}) GET => ${res.responseCode}.`);
             this.#writeResponse(socket, res);
           });
-          return;
         }
-        default:
-          socket.internal.write('ERROR Non-valid request.\r\n');
+        default: {
+          return this.#writeResponse(socket, {
+            response: 'Bad Request',
+            responseCode: 400,
+            headers: {
+              Server: 'massive-magenta',
+            },
+          });
+        }
       }
     } catch (error) {
       console.log(colors.brightRed(`(${socket.addr}:${socket.port}) d/c on data listener.`));
