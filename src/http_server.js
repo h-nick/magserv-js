@@ -1,5 +1,8 @@
 const net = require('net');
 const colors = require('colors/safe');
+const fs = require('fs').promises;
+const path = require('path');
+const { resolve } = require('path');
 const { TCPSocket } = require('./tcp_socket');
 
 /**
@@ -132,6 +135,34 @@ class HttpServer {
     }
 
     return headers;
+  }
+
+  /**
+   * @private
+   * @function
+   * @description Checks if the resource requested exists and returns it.
+   * @param {String} resource - String identifying the directory and resource being fetched.
+   * @returns {Promise<Object>} Object containing the file data and metadata.
+   * @returns {Rejected<Null>} If the resource does not exist, null is returned.
+   */
+  #getResource = async (resource) => {
+    try {
+      console.log(resource);
+      const resolvedPath = path.join(__dirname, '../www', resource);
+      console.log(resolvedPath);
+
+      const fileData = await fs.readFile(resolvedPath, { encoding: 'utf8' });
+      const { size: fileSize } = await fs.stat(resolvedPath);
+      // const fileType = path.extname(resolvedPath);
+
+      return {
+        fileData,
+        fileSize,
+        // fileType,
+      };
+    } catch {
+      return null;
+    }
   }
 
   /**
