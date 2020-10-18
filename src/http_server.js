@@ -196,6 +196,22 @@ class HttpServer {
     };
   }
 
+  #writeResponse = (socket, res) => {
+    socket.internal.write(`HTTP/1.0 ${res.responseCode} ${res.response}\r\n`);
+
+    /* eslint-disable-next-line no-restricted-syntax */
+    for (const header of Object.keys(res.headers)) {
+      socket.internal.write(`${header}: ${res.headers[header]}\r\n`);
+    }
+
+    if (res.body) {
+      socket.internal.write('\r\n'); // Body separation line.
+      socket.internal.write(res.body);
+    }
+
+    this.#endConnection(socket);
+  }
+
   /**
    * @private
    * @function
@@ -222,9 +238,9 @@ class HttpServer {
 
       switch (method) {
         case 'GET': {
-            console.log(res);
           this.#handleGetMethod(resource).then((res) => {
             console.log(`${this.#str.server} (${socket.addr}) GET => ${res.responseCode}.`);
+            this.#writeResponse(socket, res);
           });
           return;
         }
