@@ -68,7 +68,7 @@ class HttpServer {
    * @description This function gets called once the socket half-closes the TCP connection.
    * @param {Object} socket - The object representing the connected socket.
    * It should be passed by the appropriate event listener.
-   * @return {Void} N/A
+   * @returns {Void} N/A
    */
   #endHandler = (socket) => {
     try {
@@ -87,7 +87,7 @@ class HttpServer {
    * @description Manually destroys the socket connection without triggering the
    * end event handler.
    * @param {Object} socket - The object representing the connected socket.
-   * @return {Void} N/A
+   * @returns {Void} N/A
    */
   #endConnection = (socket) => {
     try {
@@ -104,7 +104,7 @@ class HttpServer {
    * @description Gets the entry line in an HTTP request.
    * @param {String[]} stringData - The array of strings containing the HTTP request.
    * It should be passed down by the appropriate method.
-   * @return {String[]} Returns an array of strings containing the HTTP request
+   * @returns {String[]} Returns an array of strings containing the HTTP request
    * method, resource and version.
    */
   #getEntryLine = (stringData) => stringData[0].split(' ');
@@ -115,7 +115,7 @@ class HttpServer {
    * @description Gets the headers from the HTTP request.
    * @param {String[]} stringData - The array of strings containing the HTTP request.
    * It should be passed down by the appropriate method.
-   * @return {Object} Returns an object with all the headers.
+   * @returns {Object} Returns an object with all the headers.
    * Non-valid headers are parsed out.
    */
   #getHeaders = (stringData) => {
@@ -204,7 +204,7 @@ class HttpServer {
    * @param {Object} socket - The object representing the connected socket.
    * It should be passed by the appropriate event listener.
    * @param {Buffer} data - The request received by the server.
-   * @return {Void} N/A
+   * @returns {Void} N/A
    */
   #dataHandler = (socket, data) => {
     try {
@@ -242,7 +242,7 @@ class HttpServer {
    * @description Creates a new TCPSocket instance and sets up the event listeners.
    * @param {Object} client - The object representing the connected socket.
    * It should be passed by the appropriate event listener.
-   * @return {Void} N/A
+   * @returns {Void} N/A
    */
   #tcpHandler = (client) => {
     const socket = new TCPSocket(client);
@@ -256,7 +256,7 @@ class HttpServer {
    * @private
    * @function
    * @description Sets up the TCP listener for the server.
-   * @return {Void} N/A
+   * @returns {Void} N/A
    */
   #listen = () => {
     this.#server.listen(this.#port, this.#host, 1, () => {
@@ -268,7 +268,7 @@ class HttpServer {
    * @function
    * @description Starts up the server.
    * @param {Function} [listener=#tcpHandler] - The callback to handle new connections.
-   * @return {Object} The server instance.
+   * @returns {Object} The server instance.
    */
   init = (listener = this.#tcpHandler) => {
     console.log(colors.yellow(`Initializing TCP server on port ${this.#port}...`));
