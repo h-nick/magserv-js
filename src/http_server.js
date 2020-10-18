@@ -147,9 +147,7 @@ class HttpServer {
    */
   #getResource = async (resource) => {
     try {
-      console.log(resource);
       const resolvedPath = path.join(__dirname, '../www', resource);
-      console.log(resolvedPath);
 
       const fileData = await fs.readFile(resolvedPath, { encoding: 'utf8' });
       const { size: fileSize } = await fs.stat(resolvedPath);
@@ -163,6 +161,38 @@ class HttpServer {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * @private
+   * @function
+   * @description Handles a GET HTTP request and returns an appropriate response.
+   * @param {Object} socket - The object representing the connected socket.
+   * @param {String} resource - String identifying the directory and resource being fetched.
+   * @returns {Promise<Object>} The response object including the status line, headers and body.
+   */
+  #handleGetMethod = async (socket, resource) => {
+    const file = await this.#getResource(resource);
+
+    if (!file) {
+      return {
+        response: 'Not Found',
+        responseCode: 404,
+        headers: {
+          Server: 'massive-magenta',
+        },
+      };
+    }
+
+    return {
+      response: 'OK',
+      responseCode: 200,
+      headers: {
+        Server: 'massive-magenta',
+        'Content-Length': file.fileSize,
+      },
+      body: file.fileData,
+    };
   }
 
   /**
@@ -187,22 +217,21 @@ class HttpServer {
         return;
       }
 
+      console.log(`${this.#str.client} (${socket.addr}:${socket.port}) sent data.`);
+
       switch (method) {
         case 'GET': {
-          socket.internal.write(
-            `ANSWER ${method} ${resource} ${version}\r\n`,
-          );
-          break;
+          this.#handleGetMethod(socket, resource).then((res) => {
+            console.log(`${this.#str.server} (${socket.addr}) GET => ${res.responseCode}`);
+            console.log(res);
+          });
+          return;
         }
         default:
           socket.internal.write('ERROR Non-valid request.\r\n');
       }
-
-      console.log(`${this.#str.client} (${socket.addr}:${socket.port}) sent data.`);
     } catch (error) {
-      console.log(
-        colors.brightRed(`(${socket.addr}:${socket.port}) d/c on data listener.`),
-      );
+      console.log(colors.brightRed(`(${socket.addr}:${socket.port}) d/c on data listener.`));
       console.log(error);
     }
   }
