@@ -1,12 +1,19 @@
 # Custom HTTP Server
-![GitHub package.json version](https://img.shields.io/github/package-json/v/hniks/massive-magenta)
-![GitHub](https://img.shields.io/github/license/hniks/massive-magenta)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/hniklass/massive-magenta)
+![GitHub](https://img.shields.io/github/license/hniklass/massive-magenta)
 
-This custom HTTP server (codenamed Massive-Magenta) is part of a DIY project at [TPH](https://theprogrammershangout.com/).
+**Massive-Magenta** is a custom HTTP server made using Node's TCP sockets bindings.
 
-**[Documentation](https://hniks.github.io/massive-magenta/)**
+Part of a DIY project for [TPH](https://theprogrammershangout.com/).
+
+**[Documentation](https://hniklass.github.io/massive-magenta/)**
 
 ## Changelog
+* 2020/10/18 - v.0.1.0-alpha.6
+  * HTTP GET requests are now supported by the server.
+  * Appropriate headers are now sent with the response.
+* 2020/10/14 - v0.1.0-alpha.5
+  * Implemented parser for HTTP requests.
 * 2020/10/06 - v0.1.0-alpha.4
   * Configured JSDoc to keep code documented.
 * 2020/10/04 - v0.1.0-alpha.3
