@@ -147,7 +147,14 @@ class HttpServer {
    */
   #getResource = async (resource) => {
     try {
-      const resolvedPath = path.join(__dirname, '../www', resource);
+      let resourcePath = resource;
+
+      // Serve index.html by default.
+      if (resource[resource.length - 1] === '/') {
+        resourcePath += '/index.html';
+      }
+
+      const resolvedPath = path.join(__dirname, '../www', resourcePath);
 
       const fileData = await fs.readFile(resolvedPath, { encoding: 'utf8' });
       const { size: fileSize } = await fs.stat(resolvedPath);
