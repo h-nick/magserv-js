@@ -171,7 +171,7 @@ class HttpServer {
    * @param {String} resource - String identifying the directory and resource being fetched.
    * @returns {Promise<Object>} The response object including the status line, headers and body.
    */
-  #handleGetMethod = async (socket, resource) => {
+  #handleGetMethod = async (resource) => {
     const file = await this.#getResource(resource);
 
     if (!file) {
@@ -222,9 +222,9 @@ class HttpServer {
 
       switch (method) {
         case 'GET': {
-          this.#handleGetMethod(socket, resource).then((res) => {
-            console.log(`${this.#str.server} (${socket.addr}) GET => ${res.responseCode}`);
             console.log(res);
+          this.#handleGetMethod(resource).then((res) => {
+            console.log(`${this.#str.server} (${socket.addr}) GET => ${res.responseCode}.`);
           });
           return;
         }
