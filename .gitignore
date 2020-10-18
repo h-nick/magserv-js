@@ -2,3 +2,5 @@
 /log
 /.nyc_output
 /.vscode
+/www/*
+!/www/.gitkeep
