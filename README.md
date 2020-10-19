@@ -9,6 +9,9 @@ Part of a DIY project for [TPH](https://theprogrammershangout.com/).
 **[Documentation](https://hniklass.github.io/massive-magenta/)**
 
 ## Changelog
+* 2020/10/19 - v.0.1.0-alpha.7
+  * Rewrote test suite and implemented integration tests.
+  * Implemented configuration files.
 * 2020/10/18 - v.0.1.0-alpha.6
   * HTTP GET requests are now supported by the server.
   * Appropriate headers are now sent with the response.

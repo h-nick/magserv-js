@@ -3,6 +3,7 @@ const colors = require('colors/safe');
 const fs = require('fs').promises;
 const path = require('path');
 const mime = require('mime-types');
+const config = require('config');
 const { TCPSocket } = require('./tcp_socket');
 
 /**
@@ -48,7 +49,7 @@ class HttpServer {
    * const server = new HTTPServer();
    * server.init();
    */
-  constructor(host = '127.0.0.1', port = 8124) {
+  constructor(host = config.get('host'), port = config.get('port')) {
     this.#host = process.env.HOST || host;
     this.#port = process.env.PORT || port;
   }
@@ -153,7 +154,8 @@ class HttpServer {
         resourcePath += '/index.html';
       }
 
-      const resolvedPath = path.join(__dirname, '../www', resourcePath);
+      const webDir = config.get('web_dir');
+      const resolvedPath = path.join(__dirname, `../${webDir}`, resourcePath);
 
       const fileData = await fs.readFile(resolvedPath, { encoding: 'utf8' });
       const { size: fileSize } = await fs.stat(resolvedPath);
@@ -305,7 +307,7 @@ class HttpServer {
    * @returns {Void} N/A
    */
   #listen = () => {
-    this.#server.listen(this.#port, this.#host, 2500, () => {
+    this.#server.listen(this.#port, this.#host, config.get('backlog_size'), () => {
       console.log(`${this.#str.server} Connected. Listening on ${this.#host}:${this.#port}.`);
     });
   }

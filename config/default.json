@@ -1,0 +1,7 @@
+{
+  "environment": "development",
+  "port": 8124,
+  "host": "localhost",
+  "web_dir": "www",
+  "backlog_size": 255
+}

@@ -1,10 +1,10 @@
 {
   "name": "massive-magenta",
-  "version": "0.1.0-alpha.6",
+  "version": "0.1.0-alpha.7",
   "description": "Node.js-based custom http server for TPH.",
   "main": "src/index.js",
   "scripts": {
-    "start": "npx nodemon src/index.js",
+    "start": "npx nodemon",
     "test": "npx nyc mocha",
     "docs": "npx jsdoc --configure .jsdoc.json --verbose --private -r ./src"
   },
@@ -12,6 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "colors": "^1.4.0",
+    "config": "^3.3.2",
     "mime-types": "^2.1.27",
     "nodemon": "^2.0.4"
   },
