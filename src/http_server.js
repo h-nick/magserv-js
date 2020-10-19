@@ -203,19 +203,23 @@ class HttpServer {
   }
 
   #writeResponse = (socket, res) => {
-    socket.internal.write(`HTTP/1.0 ${res.responseCode} ${res.response}\r\n`);
+    try {
+      socket.internal.write(`HTTP/1.0 ${res.responseCode} ${res.response}\r\n`);
 
-    /* eslint-disable-next-line no-restricted-syntax */
-    for (const header of Object.keys(res.headers)) {
-      socket.internal.write(`${header}: ${res.headers[header]}\r\n`);
+      /* eslint-disable-next-line no-restricted-syntax */
+      for (const header of Object.keys(res.headers)) {
+        socket.internal.write(`${header}: ${res.headers[header]}\r\n`);
+      }
+
+      if (res.body) {
+        socket.internal.write('\r\n'); // Body separation line.
+        socket.internal.write(res.body);
+      }
+
+      socket.internal.write('\r\n');
+    } catch {
+      console.log(`${this.#str.server} Could not write data to (${socket.addr}:${socket.port}).`);
     }
-
-    if (res.body) {
-      socket.internal.write('\r\n'); // Body separation line.
-      socket.internal.write(res.body);
-    }
-
-    socket.internal.write('\r\n');
 
     this.#endConnection(socket);
   }
@@ -301,7 +305,7 @@ class HttpServer {
    * @returns {Void} N/A
    */
   #listen = () => {
-    this.#server.listen(this.#port, this.#host, 1, () => {
+    this.#server.listen(this.#port, this.#host, 2500, () => {
       console.log(`${this.#str.server} Connected. Listening on ${this.#host}:${this.#port}.`);
     });
   }
