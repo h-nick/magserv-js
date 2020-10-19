@@ -72,7 +72,6 @@ class HttpServer {
    */
   #endHandler = (socket) => {
     try {
-      socket.internal.write('Finished. Bye!\r\n');
       socket.internal.destroy();
     } catch (error) {
       console.log(error);
