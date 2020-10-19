@@ -239,26 +239,30 @@ class HttpServer {
       const headers = this.#getHeaders(stringData);
 
       if (!method || !resource || !version || !Object.keys(headers).length) {
-        return this.#writeResponse(socket, {
+        this.#writeResponse(socket, {
           response: 'Bad Request',
           responseCode: 400,
           headers: {
             Server: 'massive-magenta',
           },
         });
+
+        return;
       }
 
       console.log(`${this.#str.client} (${socket.addr}:${socket.port}) sent data.`);
 
       switch (method) {
         case 'GET': {
-          return this.#handleGetMethod(resource).then((res) => {
+          this.#handleGetMethod(resource).then((res) => {
             console.log(`${this.#str.server} (${socket.addr}) GET => ${res.responseCode}.`);
             this.#writeResponse(socket, res);
           });
+
+          break;
         }
         default: {
-          return this.#writeResponse(socket, {
+          this.#writeResponse(socket, {
             response: 'Bad Request',
             responseCode: 400,
             headers: {
@@ -267,6 +271,8 @@ class HttpServer {
           });
         }
       }
+
+      return;
     } catch (error) {
       console.log(colors.brightRed(`(${socket.addr}:${socket.port}) d/c on data listener.`));
       console.log(error);
