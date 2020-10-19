@@ -216,6 +216,8 @@ class HttpServer {
       socket.internal.write(res.body);
     }
 
+    socket.internal.write('\r\n');
+
     this.#endConnection(socket);
   }
 
