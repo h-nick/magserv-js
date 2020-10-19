@@ -4,7 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const mime = require('mime-types');
 const config = require('config');
-const { TCPSocket } = require('./tcp_socket');
+const { TcpSocket } = require('./tcp_socket');
 
 /**
  * @class
@@ -295,13 +295,13 @@ class HttpServer {
   /**
    * @private
    * @function
-   * @description Creates a new TCPSocket instance and sets up the event listeners.
+   * @description Creates a new TcpSocket instance and sets up the event listeners.
    * @param {Object} client - The object representing the connected socket.
    * It should be passed by the appropriate event listener.
    * @returns {Void} N/A.
    */
   #tcpHandler = (client) => {
-    const socket = new TCPSocket(client);
+    const socket = new TcpSocket(client);
     console.log(`${this.#str.client} (${socket.addr}:${socket.port}) connected.`);
 
     socket.internal.on('end', () => this.#endHandler(socket));

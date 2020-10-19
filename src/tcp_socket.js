@@ -2,7 +2,7 @@
  * @class
  * @classdesc TCPSocket is a wrapper around the native Net.Socket class.
  */
-class TCPSocket {
+class TcpSocket {
   /**
    * @description Holds the actual socket of the instance.
    */
@@ -29,4 +29,4 @@ class TCPSocket {
   }
 }
 
-module.exports = { TCPSocket };
+module.exports = { TcpSocket };
