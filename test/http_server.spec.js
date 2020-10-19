@@ -1,96 +1,98 @@
-const net = require('net');
-const { expect } = require('chai');
-// const sinon = require('sinon');
+/* eslint-disable no-unused-expressions */
+
+const chaiHttp = require('chai-http');
+const chai = require('chai');
 const { HttpServer } = require('../src/http_server');
 
-const clientConfig = {
-  host: '127.0.0.1',
-  port: 8124,
-  localAddress: '127.0.0.1',
-  family: 4,
-};
-
+chai.use(chaiHttp);
 console.log = () => { }; // Skipping console.logs.
 
-describe('HTTP server test suite', () => {
-  before(() => {
-    this.currentTest = {};
-
-    this.currentTest.server = new HttpServer();
-    this.currentTest.server.init();
-  });
-
-  after(() => {
-    this.currentTest.server.close();
-  });
-
-  beforeEach(() => {
-    this.currentTest.client = new net.Socket();
-  });
-
-  afterEach(() => {
-    this.currentTest.client.off('data', this.currentTest.handler);
-    this.currentTest.client.destroy();
-  });
-
-  describe('Server on...', () => {
-    it('socket disconnect should write appropriate data to socket', (done) => {
-      this.currentTest.handler = (data) => {
-        const expMsg = data.toString('utf-8').split('\r\n')[0];
-        expect(expMsg).to.be.a('string');
-        expect(expMsg).to.equal('Finished. Bye!');
-
-        done();
-      };
-
-      this.currentTest.client.connect(clientConfig);
-      this.currentTest.client.end();
-
-      this.currentTest.client.on('data', this.currentTest.handler);
-    });
-  });
-
-  describe('Socket when...', () => {
-    it('sending a non-valid structure should error.', (done) => {
-      this.currentTest.handler = (data) => {
-        const expMsg = data.toString('utf-8').split('\r\n')[0];
-        expect(expMsg).to.be.a('string');
-        expect(expMsg).to.equal('ERROR Method, Resource or Version missing from request.');
-
-        done();
-      };
-
-      this.currentTest.client.connect(clientConfig);
-      this.currentTest.client.write('.');
-      this.currentTest.client.on('data', this.currentTest.handler);
+describe('Integration tests:', () => {
+  describe('HTTP server should-', () => {
+    before(() => {
+      this.connection = 'http://localhost:8124';
+      this.server = new HttpServer();
+      this.server.init();
     });
 
-    it('sending correct structure with non-valid method should error.', (done) => {
-      this.currentTest.handler = (data) => {
-        const expMsg = data.toString('utf-8').split('\r\n')[0];
-        expect(expMsg).to.be.a('string');
-        expect(expMsg).to.equal('ERROR Non-valid request.');
-
-        done();
-      };
-
-      this.currentTest.client.connect(clientConfig);
-      this.currentTest.client.write('TEST / http/1.1');
-      this.currentTest.client.on('data', this.currentTest.handler);
+    after(() => {
+      this.server.close();
     });
 
-    it('sending correct structure with GET method should receive an answer.', (done) => {
-      this.currentTest.handler = (data) => {
-        const expMsg = data.toString('utf-8').split('\r\n')[0];
-        expect(expMsg).to.be.a('string');
-        expect(expMsg).to.equal('ANSWER GET / http/1.1');
+    const assertRes = (err, { headers, statusCode, httpVersion }, status) => {
+      if (!err) {
+        if (
+          Object.keys(headers).length
+          && statusCode === status
+          && httpVersion === '1.0'
+          && headers.server === 'massive-magenta'
+        ) {
+          return true;
+        }
+      }
 
-        done();
-      };
+      return false;
+    };
 
-      this.currentTest.client.connect(clientConfig);
-      this.currentTest.client.write('GET / http/1.1');
-      this.currentTest.client.on('data', this.currentTest.handler);
+    it('return HTTP 400 for a non-valid HTTP request', (done) => {
+      chai.request(this.connection)
+        .get('/')
+        .set('Content-Length', '') // Removing headers set up by Chai.
+        .set('User-Agent', '')
+        .set('Accept-Encoding', '')
+        .set('Host', '')
+        .set('Connection', '')
+        .end((err, res) => {
+          const result = assertRes(err, res.res, 400);
+          chai.expect(result).to.be.true;
+          done();
+        });
+    });
+
+    it('return HTTP 404 when requesting a resource that does not exist', (done) => {
+      chai.request(this.connection)
+        .get('/404')
+        .end((err, res) => {
+          const result = assertRes(err, res.res, 404);
+          chai.expect(result).to.be.true;
+          done();
+        });
+    });
+
+    it('return HTTP 200 with Content-Type "text/plain" when requesting test.txt', (done) => {
+      chai.request(this.connection)
+        .get('/test.txt')
+        .end((err, res) => {
+          const result = assertRes(err, res.res, 200);
+          chai.expect(result).to.be.true;
+          chai.expect(res).header('content-type', 'text/plain; charset=utf-8');
+          chai.expect(res).to.be.text;
+          done();
+        });
+    });
+
+    it('return HTTP 200 with Content-Type "text/plain" when requesting test/test.txt', (done) => {
+      chai.request(this.connection)
+        .get('/test/test.txt')
+        .end((err, res) => {
+          const result = assertRes(err, res.res, 200);
+          chai.expect(result).to.be.true;
+          chai.expect(res).header('content-type', 'text/plain; charset=utf-8');
+          chai.expect(res).to.be.text;
+          done();
+        });
+    });
+
+    it('return HTTP 200 with Content-Type "text/html" when requesting /', (done) => {
+      chai.request(this.connection)
+        .get('/')
+        .end((err, res) => {
+          const result = assertRes(err, res.res, 200);
+          chai.expect(result).to.be.true;
+          chai.expect(res).header('content-type', 'text/html; charset=utf-8');
+          chai.expect(res).to.be.html;
+          done();
+        });
     });
   });
 });
