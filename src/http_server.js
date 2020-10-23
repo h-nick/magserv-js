@@ -5,6 +5,7 @@ const path = require('path');
 const mime = require('mime-types');
 const config = require('config');
 const { TcpSocket } = require('./tcp_socket');
+const { httpResponses, defaultHeaders } = require('../utils/http_utils');
 
 /**
  * @class
@@ -156,18 +157,41 @@ class HttpServer {
 
       const webDir = config.get('web_dir');
       const resolvedPath = path.join(__dirname, `../${webDir}`, resourcePath);
-
-      const fileData = await fs.readFile(resolvedPath, { encoding: 'utf8' });
-      const { size: fileSize } = await fs.stat(resolvedPath);
-      const fileType = mime.contentType(path.extname(resolvedPath));
+      /* // Check if the resolvePath is within /www.
+      const relative = path.relative(path.resolve(__dirname, '../www'), resolvedPath);
+      if (relative && relative.startsWith('..')) {
+        console.log('RELATIVE');
+      }
+      */
+      const data = await fs.readFile(resolvedPath, { encoding: 'utf8' });
+      const { size } = await fs.stat(resolvedPath);
+      const type = mime.contentType(path.extname(resolvedPath));
 
       return {
-        fileData,
-        fileSize,
-        fileType,
+        code: 200,
+        file: {
+          data,
+          size,
+          type,
+        },
       };
-    } catch {
-      return null;
+    } catch (error) {
+      switch (error.code) {
+        case 'EACCES':
+        case 'EISDIR':
+        case 'ENOTDIR':
+        case 'ENOTEMPTY':
+        case 'EPERM':
+        case 'EEXIST':
+          return { code: 400 };
+
+        case 'ENOENT':
+          return { code: 404 };
+
+        case 'EMFILE':
+        default:
+          return { code: 500 };
+      }
     }
   }
 
@@ -180,27 +204,30 @@ class HttpServer {
    * @returns {Promise<Object>} The response object including the status line, headers and body.
    */
   #handleGetMethod = async (resource) => {
-    const file = await this.#getResource(resource);
+    const resourceData = await this.#getResource(resource);
 
-    if (!file) {
+    const getResponse = {
+      response: httpResponses[resourceData.code],
+      responseCode: resourceData.code,
+    };
+
+    if (!resourceData.file) {
       return {
-        response: 'Not Found',
-        responseCode: 404,
+        ...getResponse,
         headers: {
-          Server: 'massive-magenta',
+          ...defaultHeaders,
         },
       };
     }
 
     return {
-      response: 'OK',
-      responseCode: 200,
+      ...getResponse,
       headers: {
-        Server: 'massive-magenta',
-        'Content-Length': file.fileSize,
-        'Content-Type': file.fileType,
+        ...defaultHeaders,
+        'Content-Length': resourceData.file.size,
+        'Content-Type': resourceData.file.type,
       },
-      body: file.fileData,
+      body: resourceData.file.data,
     };
   }
 
