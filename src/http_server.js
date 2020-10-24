@@ -1,12 +1,13 @@
 const net = require('net');
 const colors = require('colors/safe');
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
 const config = require('config');
 const { TcpSocket } = require('./tcp_socket');
 const { httpResponses, defaultHeaders } = require('../utils/http_utils');
 
+const fsAsync = fs.promises;
 /**
  * @class
  * @classdesc HTTPServer is a custom implementation of a server to handle the HTTP protocol.
@@ -143,48 +144,64 @@ class HttpServer {
    * @function
    * @description Checks if the resource requested exists and returns it.
    * @param {String} resource - String identifying the directory and resource being fetched.
-   * @returns {Promise<Object>} Object containing the file data and metadata.
-   * @returns {Rejected<Null>} If the resource does not exist, null is returned.
+   * @returns {Promise(Resolved)<Object>} Object containing an HTTP 200 code and
+   * the file with its metadata.
+   * @returns {Promise(Rejected)<Object>} Object containing an HTTP error code.
    */
   #getResource = async (resource) => {
     try {
       let resourcePath = resource;
 
-      // Serve index.html by default.
+      // Determine if trailing slash and remove it.
       if (resource[resource.length - 1] === '/') {
-        resourcePath += '/index.html';
+        resourcePath = resourcePath.slice(0, resourcePath.length - 1);
       }
 
+      // Resolves resource to a full path using the public folder configured.
       const webDir = config.get('web_dir');
-      const resolvedPath = path.join(__dirname, `../${webDir}`, resourcePath);
-      /* // Check if the resolvePath is within /www.
-      const relative = path.relative(path.resolve(__dirname, '../www'), resolvedPath);
+      let resolvedPath = path.join(__dirname, `../${webDir}`, resourcePath);
+
+      console.log(resolvedPath);
+
+      // Checks if the resolvePath is within /www.
+      const relative = path.relative(path.resolve(__dirname, `../${webDir}`), resolvedPath);
       if (relative && relative.startsWith('..')) {
-        console.log('RELATIVE');
+        return {
+          code: 403,
+        };
       }
-      */
-      const data = await fs.readFile(resolvedPath, { encoding: 'utf8' });
-      const { size } = await fs.stat(resolvedPath);
+
+      let stats = await fsAsync.stat(resolvedPath);
+      if (stats.isDirectory()) {
+        resolvedPath = path.join(resolvedPath, '/index.html');
+        stats = await fsAsync.stat(resolvedPath);
+      }
+
+      const data = await fsAsync.readFile(resolvedPath, { encoding: 'utf8' });
       const type = mime.contentType(path.extname(resolvedPath));
 
       return {
         code: 200,
         file: {
           data,
-          size,
+          size: stats.size,
           type,
         },
       };
     } catch (error) {
+      console.log(error);
+
       switch (error.code) {
         case 'EACCES':
-        case 'EISDIR':
-        case 'ENOTDIR':
         case 'ENOTEMPTY':
         case 'EPERM':
         case 'EEXIST':
           return { code: 400 };
 
+        case 'EISDIR':
+          return { code: 403 };
+
+        case 'ENOTDIR':
         case 'ENOENT':
           return { code: 404 };
 
