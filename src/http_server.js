@@ -218,7 +218,8 @@ class HttpServer {
    * @description Handles a GET HTTP request and returns an appropriate response.
    * @param {Object} socket - The object representing the connected socket.
    * @param {String} resource - String identifying the directory and resource being fetched.
-   * @returns {Promise<Object>} The response object including the status line, headers and body.
+   * @returns {Promise(Resolved)<Object>}
+   * The response object including the status line, headers and body.
    */
   #handleGetMethod = async (resource) => {
     const resourceData = await this.#getResource(resource);
