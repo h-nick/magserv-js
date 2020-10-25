@@ -7,7 +7,7 @@ const { HttpServer } = require('../src/http_server');
 chai.use(chaiHttp);
 console.log = () => { }; // Skipping console.logs.
 
-describe('Integration tests:', () => {
+describe('Functional tests:', () => {
   describe('HTTP server should-', () => {
     before(() => {
       this.connection = 'http://localhost:8124';
@@ -68,7 +68,17 @@ describe('Integration tests:', () => {
         .set('Host', '')
         .set('Connection', '')
         .end((err, res) => {
-          const result = assertRes(err, res.res, 400);
+          const result = assertRes(err, res?.res, 400);
+          chai.expect(result).to.be.true;
+          done();
+        });
+    });
+
+    it('return HTTP 403 if attempting to read outside the public directory', (done) => {
+      chai.request(this.connection)
+        .get('/../../../')
+        .end((err, res) => {
+          const result = assertRes(err, res?.res, 403);
           chai.expect(result).to.be.true;
           done();
         });
@@ -78,7 +88,7 @@ describe('Integration tests:', () => {
       chai.request(this.connection)
         .get('/test///')
         .end((err, res) => {
-          const result = assertRes(err, res.res, 404);
+          const result = assertRes(err, res?.res, 404);
           chai.expect(result).to.be.true;
           done();
         });
@@ -86,11 +96,11 @@ describe('Integration tests:', () => {
 
     it('return HTTP 404 for a dir path URL with no index.html', async () => {
       const res1 = await chai.request(this.connection).get('/test');
-      const assert1 = assertRes(undefined, res1.res, 404);
+      const assert1 = assertRes(undefined, res1?.res, 404);
       chai.expect(assert1).to.be.true;
 
       const res2 = await chai.request(this.connection).get('/test/');
-      const assert2 = assertRes(undefined, res2.res, 404);
+      const assert2 = assertRes(undefined, res2?.res, 404);
       chai.expect(assert2).to.be.true;
     });
 
@@ -98,7 +108,7 @@ describe('Integration tests:', () => {
       chai.request(this.connection)
         .get('/404')
         .end((err, res) => {
-          const result = assertRes(err, res.res, 404);
+          const result = assertRes(err, res?.res, 404);
           chai.expect(result).to.be.true;
           done();
         });
@@ -108,7 +118,7 @@ describe('Integration tests:', () => {
       chai.request(this.connection)
         .get('/test.txt')
         .end((err, res) => {
-          const result = assertRes(err, res.res, 200);
+          const result = assertRes(err, res?.res, 200);
           chai.expect(result).to.be.true;
           chai.expect(res).header('content-type', 'text/plain; charset=utf-8');
           chai.expect(res).header('content-length', '126');
@@ -121,7 +131,7 @@ describe('Integration tests:', () => {
       chai.request(this.connection)
         .get('/test/test.txt')
         .end((err, res) => {
-          const result = assertRes(err, res.res, 200);
+          const result = assertRes(err, res?.res, 200);
           chai.expect(result).to.be.true;
           chai.expect(res).header('content-type', 'text/plain; charset=utf-8');
           chai.expect(res).header('content-length', '144');
@@ -134,7 +144,7 @@ describe('Integration tests:', () => {
       chai.request(this.connection)
         .get('/')
         .end((err, res) => {
-          const result = assertRes(err, res.res, 200);
+          const result = assertRes(err, res?.res, 200);
           chai.expect(result).to.be.true;
           chai.expect(res).header('content-type', 'text/html; charset=utf-8');
           chai.expect(res).header('content-length', '221');
@@ -145,21 +155,21 @@ describe('Integration tests:', () => {
 
     it('return HTTP 200 with proper headers and handle trailing slashes', async () => {
       const res1 = await chai.request(this.connection).get('/index.html/');
-      const assert1 = assertRes(undefined, res1.res, 200);
+      const assert1 = assertRes(undefined, res1?.res, 200);
       chai.expect(assert1).to.be.true;
       chai.expect(res1).header('content-type', 'text/html; charset=utf-8');
       chai.expect(res1).header('content-length', '221');
       chai.expect(res1).to.be.html;
 
       const res2 = await chai.request(this.connection).get('/////');
-      const assert2 = assertRes(undefined, res2.res, 200);
+      const assert2 = assertRes(undefined, res2?.res, 200);
       chai.expect(assert2).to.be.true;
       chai.expect(res2).header('content-type', 'text/html; charset=utf-8');
       chai.expect(res2).header('content-length', '221');
       chai.expect(res2).to.be.html;
 
       const res3 = await chai.request(this.connection).get('/test/test.txt/');
-      const assert3 = assertRes(undefined, res3.res, 200);
+      const assert3 = assertRes(undefined, res3?.res, 200);
       chai.expect(assert3).to.be.true;
       chai.expect(res3).header('content-type', 'text/plain; charset=utf-8');
       chai.expect(res3).header('content-length', '144');
