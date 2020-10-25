@@ -1,16 +1,22 @@
 # Custom HTTP Server
-![GitHub package.json version](https://img.shields.io/github/package-json/v/hniklass/massive-magenta)
-![GitHub](https://img.shields.io/github/license/hniklass/massive-magenta)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/hniklass/magserv-js)
+![GitHub](https://img.shields.io/github/license/hniklass/magserv-js)
 
-**Massive-Magenta** is a custom HTTP server made using Node's TCP sockets bindings.
+**MagservJS** is a custom HTTP server made using Node's TCP sockets bindings.
 
 Part of a DIY project for [TPH](https://theprogrammershangout.com/).
 
-**[Documentation](https://hniklass.github.io/massive-magenta/)**
+**[Documentation](https://hniklass.github.io/magserv-js/)**
 
 ## Changelog
+* 2020/10/25 - v.1.0.0
+  * First release (TPH chapter 14 completed).
+  * HTTP GET fully supported.
+  * Bad paths and trailing slashes are now handled properly.
+  * Added security methods to stop clients from reading outside the public folder.
+  * `index.html` files are now served by default if no file is requested.
 * 2020/10/19 - v.0.1.0-alpha.7
-  * Rewrote test suite and implemented integration tests.
+  * Rewrote test suite and implemented proper functional tests.
   * Implemented configuration files.
 * 2020/10/18 - v.0.1.0-alpha.6
   * HTTP GET requests are now supported by the server.

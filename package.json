@@ -1,6 +1,6 @@
 {
-  "name": "massive-magenta",
-  "version": "0.1.0-alpha.7",
+  "name": "magserv-js",
+  "version": "1.0.0",
   "description": "Node.js-based custom http server for TPH.",
   "main": "src/index.js",
   "scripts": {
