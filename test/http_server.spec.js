@@ -19,8 +19,10 @@ describe('Integration tests:', () => {
       this.server.close();
     });
 
-    const assertRes = (err = undefined, { headers, statusCode, httpVersion }, status) => {
+    const assertRes = (err = undefined, res, status) => {
       if (!err) {
+        const { headers, statusCode, httpVersion } = res;
+
         if (
           Object.keys(headers).length
           && statusCode === status
@@ -33,6 +35,29 @@ describe('Integration tests:', () => {
 
       return false;
     };
+
+    it('return an error for bad resource paths', async () => {
+      try {
+        await chai.request(this.connection).get('/../../..');
+      } catch (error) {
+        const assert = assertRes(error, undefined, null);
+        chai.expect(assert).to.be.false;
+      }
+
+      try {
+        await chai.request(this.connection).get('../../../');
+      } catch (error) {
+        const assert = assertRes(error, undefined, null);
+        chai.expect(assert).to.be.false;
+      }
+
+      try {
+        await chai.request(this.connection).get('../../..');
+      } catch (error) {
+        const assert = assertRes(error, undefined, null);
+        chai.expect(assert).to.be.false;
+      }
+    });
 
     it('return HTTP 400 for a non-valid HTTP request', (done) => {
       chai.request(this.connection)
